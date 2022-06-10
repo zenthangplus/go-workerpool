@@ -1,6 +1,6 @@
 module github.com/zenthangplus/go-workerpool
 
-go 1.18
+go 1.14
 
 require (
 	github.com/google/uuid v1.3.0
