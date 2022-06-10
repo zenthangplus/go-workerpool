@@ -73,7 +73,7 @@ func startDummyPoolFixedSize(t *testing.T, numberWorkers int, capacity int) *Poo
 func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T) {
 	pool := startDummyPoolFixedSize(t, 2, 2)
 	job1 := 0
-	go pool.Submit(NewSimpleJobWithId("1", func() {
+	go pool.Submit(NewFuncJobWithId("1", func() {
 		job1 = 1
 		pool.option.logFunc("Job 1 is finished")
 	}))
@@ -85,14 +85,14 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 
 	// Job 2, 3 will be assigned to workers (1, 2)
 	job2 := 0
-	pool.Submit(NewSimpleJobWithId("2", func() {
+	pool.Submit(NewFuncJobWithId("2", func() {
 		job2++
 		time.Sleep(50 * time.Millisecond)
 		pool.option.logFunc("Job 2 is finished")
 		job2++
 	}))
 	job3 := 0
-	pool.Submit(NewSimpleJobWithId("3", func() {
+	pool.Submit(NewFuncJobWithId("3", func() {
 		job3++
 		time.Sleep(50 * time.Millisecond)
 		pool.option.logFunc("Job 3 is finished")
@@ -101,14 +101,14 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	// Job 4, 5 will be added to job queue
 	// When all worker are busy, job 4 or 5 will be wait in Idle holding point (See Pool.Start function)
 	job4 := 0
-	pool.Submit(NewSimpleJobWithId("4", func() {
+	pool.Submit(NewFuncJobWithId("4", func() {
 		job4++
 		time.Sleep(50 * time.Millisecond)
 		pool.option.logFunc("Job 4 is finished")
 		job4++
 	}))
 	job5 := 0
-	pool.Submit(NewSimpleJobWithId("5", func() {
+	pool.Submit(NewFuncJobWithId("5", func() {
 		job5++
 		time.Sleep(50 * time.Millisecond)
 		pool.option.logFunc("Job 5 is finished")
@@ -116,7 +116,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	}))
 	// Job 6 will be added to the queue even though capacity=2 due by Idle holding point (See Pool.Start function)
 	job6 := 0
-	pool.Submit(NewSimpleJobWithId("6", func() {
+	pool.Submit(NewFuncJobWithId("6", func() {
 		job6++
 		time.Sleep(50 * time.Millisecond)
 		pool.option.logFunc("Job 6 is finished")
@@ -127,7 +127,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	job7 := 0
 	job7InQueue := false
 	go func() {
-		pool.Submit(NewSimpleJobWithId("7", func() {
+		pool.Submit(NewFuncJobWithId("7", func() {
 			job7++
 			time.Sleep(50 * time.Millisecond)
 			pool.option.logFunc("Job 7 is finished")
@@ -197,7 +197,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 func TestPool_GivenAPoolFixedSize_WhenSubmitConfidentlyJob_ShouldRunCorrectly(t *testing.T) {
 	pool := startDummyPoolFixedSize(t, 2, 2)
 	job1 := 0
-	assert.NoError(t, pool.SubmitConfidently(NewSimpleJobWithId("1", func() {
+	assert.NoError(t, pool.SubmitConfidently(NewFuncJobWithId("1", func() {
 		job1 = 1
 		pool.option.logFunc("Job 1 is finished")
 	})))
@@ -207,14 +207,14 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitConfidentlyJob_ShouldRunCorrectly(t 
 	assert.Equal(t, 1, pool.AssignedJobs())
 
 	job2 := 0
-	assert.NoError(t, pool.SubmitConfidently(NewSimpleJobWithId("2", func() {
+	assert.NoError(t, pool.SubmitConfidently(NewFuncJobWithId("2", func() {
 		job2++
 		time.Sleep(200 * time.Millisecond)
 		pool.option.logFunc("Job 2 is finished")
 		job2++
 	})))
 	job3 := 0
-	assert.NoError(t, pool.SubmitConfidently(NewSimpleJobWithId("3", func() {
+	assert.NoError(t, pool.SubmitConfidently(NewFuncJobWithId("3", func() {
 		job3++
 		time.Sleep(200 * time.Millisecond)
 		pool.option.logFunc("Job 3 is finished")
@@ -226,21 +226,21 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitConfidentlyJob_ShouldRunCorrectly(t 
 
 	// Job 5, 6 will be queued (job 4 will be in Idle holding point)
 	job4 := 0
-	assert.NoError(t, pool.SubmitConfidently(NewSimpleJobWithId("4", func() {
+	assert.NoError(t, pool.SubmitConfidently(NewFuncJobWithId("4", func() {
 		job4++
 		time.Sleep(500 * time.Millisecond)
 		pool.option.logFunc("Job 4 is finished")
 		job4++
 	})))
 	job5 := 0
-	assert.NoError(t, pool.SubmitConfidently(NewSimpleJobWithId("5", func() {
+	assert.NoError(t, pool.SubmitConfidently(NewFuncJobWithId("5", func() {
 		job5++
 		time.Sleep(500 * time.Millisecond)
 		pool.option.logFunc("Job 5 is finished")
 		job5++
 	})))
 	job6 := 0
-	assert.NoError(t, pool.SubmitConfidently(NewSimpleJobWithId("6", func() {
+	assert.NoError(t, pool.SubmitConfidently(NewFuncJobWithId("6", func() {
 		job6++
 		time.Sleep(500 * time.Millisecond)
 		pool.option.logFunc("Job 6 is finished")
@@ -249,7 +249,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitConfidentlyJob_ShouldRunCorrectly(t 
 
 	// Job 7 will be rejected due by queue full
 	job7 := 0
-	assert.ErrorIs(t, pool.SubmitConfidently(NewSimpleJobWithId("7", func() {
+	assert.ErrorIs(t, pool.SubmitConfidently(NewFuncJobWithId("7", func() {
 		job7++
 		time.Sleep(500 * time.Millisecond)
 		pool.option.logFunc("Job 7 is finished")
