@@ -1,5 +1,7 @@
 # Golang Worker Pool
 
+[![run tests](https://github.com/zenthangplus/go-workerpool/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/zenthangplus/go-workerpool/actions/workflows/test.yml)
+
 Inspired from Java Thread Pool, Go WorkerPool aims to control heavy Go Routines.
 
 ## Installation
