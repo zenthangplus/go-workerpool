@@ -1,6 +1,7 @@
 # Golang Worker Pool
 
 [![run tests](https://github.com/zenthangplus/go-workerpool/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/zenthangplus/go-workerpool/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/zenthangplus/go-workerpool/branch/main/graph/badge.svg)](https://codecov.io/gh/zenthangplus/go-workerpool)
 
 Inspired from Java Thread Pool, Go WorkerPool aims to control heavy Go Routines.
 
