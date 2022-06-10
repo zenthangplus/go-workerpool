@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	FixedSize    Mode = 0
-	FlexibleSize Mode = 1
+	FixedSize Mode = iota
+	FlexibleSize
 )
 
 const (

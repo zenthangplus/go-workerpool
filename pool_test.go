@@ -16,9 +16,6 @@ func TestPool_GivenNumberWorkers_WhenNewFixedSize_ShouldInitFieldsCorrectly(t *t
 	assert.NotNil(t, pool.option.logFunc)
 	assert.Equal(t, pool.option.capacity, cap(pool.jobQueue))
 	assert.Len(t, pool.Workers(), 0)
-	assert.Nil(t, pool.HungAt())
-	assert.Equal(t, 0, pool.HungTimes())
-	assert.EqualValues(t, 0, pool.HungDuration())
 	assert.Equal(t, 0, pool.SubmittedJobs())
 	assert.Equal(t, 0, pool.AssignedJobs())
 }
@@ -38,9 +35,6 @@ func TestPool_GivenAnOption_WhenNew_ShouldInitFieldsCorrectly(t *testing.T) {
 	assert.NotNil(t, pool.option.logFunc)
 	assert.Equal(t, pool.option.capacity, cap(pool.jobQueue))
 	assert.Len(t, pool.Workers(), 0)
-	assert.Nil(t, pool.HungAt())
-	assert.Equal(t, 0, pool.HungTimes())
-	assert.EqualValues(t, 0, pool.HungDuration())
 	assert.Equal(t, 0, pool.SubmittedJobs())
 	assert.Equal(t, 0, pool.AssignedJobs())
 }
@@ -60,9 +54,6 @@ func TestPool_GivenNegativeOption_WhenNew_ShouldInitWithFallbackValues(t *testin
 	assert.NotNil(t, pool.option.logFunc)
 	assert.Equal(t, pool.option.capacity, cap(pool.jobQueue))
 	assert.Len(t, pool.Workers(), 0)
-	assert.Nil(t, pool.HungAt())
-	assert.Equal(t, 0, pool.HungTimes())
-	assert.EqualValues(t, 0, pool.HungDuration())
 	assert.Equal(t, 0, pool.SubmittedJobs())
 	assert.Equal(t, 0, pool.AssignedJobs())
 }
@@ -79,7 +70,7 @@ func startDummyPoolFixedSize(t *testing.T, numberWorkers int, options ...OptionF
 	return pool
 }
 
-func TestPool_GivenPoolFixedSize_WhenSubmitJob_ShouldInitWorkerCorrectly(t *testing.T) {
+func TestPool_GivenAPoolFixedSize_WhenSubmitConfidentlyJob_ShouldInitWorkerCorrectly(t *testing.T) {
 	numberWorkers := 2
 	capacity := 2
 	pool := NewFixedSize(numberWorkers, WithCapacity(capacity))
@@ -92,7 +83,7 @@ func TestPool_GivenPoolFixedSize_WhenSubmitJob_ShouldInitWorkerCorrectly(t *test
 	assert.Len(t, pool.Workers(), numberWorkers)
 
 	job1 := 0
-	assert.NoError(t, pool.Submit(NewSimpleJobWithId("1", func() {
+	assert.NoError(t, pool.SubmitConfidently(NewSimpleJobWithId("1", func() {
 		job1 = 1
 		pool.option.logFunc("Job 1 is finished")
 	})))
@@ -101,14 +92,14 @@ func TestPool_GivenPoolFixedSize_WhenSubmitJob_ShouldInitWorkerCorrectly(t *test
 	assert.Equal(t, 1, pool.SubmittedJobs())
 	assert.Equal(t, 1, pool.AssignedJobs())
 	job2 := 0
-	assert.NoError(t, pool.Submit(NewSimpleJobWithId("2", func() {
+	assert.NoError(t, pool.SubmitConfidently(NewSimpleJobWithId("2", func() {
 		job2++
 		time.Sleep(200 * time.Millisecond)
 		pool.option.logFunc("Job 2 is finished")
 		job2++
 	})))
 	job3 := 0
-	assert.NoError(t, pool.Submit(NewSimpleJobWithId("3", func() {
+	assert.NoError(t, pool.SubmitConfidently(NewSimpleJobWithId("3", func() {
 		job3++
 		time.Sleep(200 * time.Millisecond)
 		pool.option.logFunc("Job 3 is finished")
@@ -120,21 +111,21 @@ func TestPool_GivenPoolFixedSize_WhenSubmitJob_ShouldInitWorkerCorrectly(t *test
 
 	// Job 5, 6 will be queued (job 4 will be in Idle holding point)
 	job4 := 0
-	assert.NoError(t, pool.Submit(NewSimpleJobWithId("4", func() {
+	assert.NoError(t, pool.SubmitConfidently(NewSimpleJobWithId("4", func() {
 		job4++
 		time.Sleep(500 * time.Millisecond)
 		pool.option.logFunc("Job 4 is finished")
 		job4++
 	})))
 	job5 := 0
-	assert.NoError(t, pool.Submit(NewSimpleJobWithId("5", func() {
+	assert.NoError(t, pool.SubmitConfidently(NewSimpleJobWithId("5", func() {
 		job5++
 		time.Sleep(500 * time.Millisecond)
 		pool.option.logFunc("Job 5 is finished")
 		job5++
 	})))
 	job6 := 0
-	assert.NoError(t, pool.Submit(NewSimpleJobWithId("6", func() {
+	assert.NoError(t, pool.SubmitConfidently(NewSimpleJobWithId("6", func() {
 		job6++
 		time.Sleep(500 * time.Millisecond)
 		pool.option.logFunc("Job 6 is finished")
@@ -143,7 +134,7 @@ func TestPool_GivenPoolFixedSize_WhenSubmitJob_ShouldInitWorkerCorrectly(t *test
 
 	// Job 7 will be rejected due by queue full
 	job7 := 0
-	assert.ErrorIs(t, pool.Submit(NewSimpleJobWithId("7", func() {
+	assert.ErrorIs(t, pool.SubmitConfidently(NewSimpleJobWithId("7", func() {
 		job7++
 		time.Sleep(500 * time.Millisecond)
 		pool.option.logFunc("Job 7 is finished")
