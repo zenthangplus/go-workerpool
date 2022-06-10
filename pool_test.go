@@ -137,7 +137,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	}()
 	pool.option.LogFunc("Submitted all jobs")
 
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(20 * time.Millisecond)
 	// Job 2, 3 is processing
 	// Job 4 in Idle holding point, job 5, 6 in queue
 	// Job 7 is hanged
