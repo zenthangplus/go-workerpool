@@ -87,14 +87,14 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	job2 := 0
 	pool.Submit(NewFuncJobWithId("2", func() {
 		job2++
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 		pool.option.LogFunc("Job 2 is finished")
 		job2++
 	}))
 	job3 := 0
 	pool.Submit(NewFuncJobWithId("3", func() {
 		job3++
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 		pool.option.LogFunc("Job 3 is finished")
 		job3++
 	}))
@@ -103,14 +103,14 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	job4 := 0
 	pool.Submit(NewFuncJobWithId("4", func() {
 		job4++
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 		pool.option.LogFunc("Job 4 is finished")
 		job4++
 	}))
 	job5 := 0
 	pool.Submit(NewFuncJobWithId("5", func() {
 		job5++
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 		pool.option.LogFunc("Job 5 is finished")
 		job5++
 	}))
@@ -118,7 +118,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	job6 := 0
 	pool.Submit(NewFuncJobWithId("6", func() {
 		job6++
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 		pool.option.LogFunc("Job 6 is finished")
 		job6++
 	}))
@@ -129,7 +129,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	go func() {
 		pool.Submit(NewFuncJobWithId("7", func() {
 			job7++
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(200 * time.Millisecond)
 			pool.option.LogFunc("Job 7 is finished")
 			job7++
 		}))
@@ -137,7 +137,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	}()
 	pool.option.LogFunc("Submitted all jobs")
 
-	time.Sleep(5 * time.Millisecond)
+	time.Sleep(50 * time.Millisecond)
 	// Job 2, 3 is processing
 	// Job 4 in Idle holding point, job 5, 6 in queue
 	// Job 7 is hanged
@@ -152,7 +152,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	assert.Equal(t, 7, pool.SubmittedJobs())
 	assert.Equal(t, 3, pool.AssignedJobs())
 
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	// Job 2, 3 is finished
 	// Job 4, 5 is processing
 	// Job 6 in Idle holding point
@@ -168,7 +168,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	assert.Equal(t, 7, pool.SubmittedJobs())
 	assert.Equal(t, 5, pool.AssignedJobs())
 
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	// Job 2, 3, 4, 5 is finished
 	// Job 6, 7 is processing
 	assert.Equal(t, 2, job2)
@@ -181,7 +181,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	assert.Equal(t, 7, pool.SubmittedJobs())
 	assert.Equal(t, 7, pool.AssignedJobs())
 
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	// All jobs are finished
 	assert.Equal(t, 2, job2)
 	assert.Equal(t, 2, job3)
