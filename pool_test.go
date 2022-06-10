@@ -81,6 +81,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	assert.Equal(t, 1, job1)
 	assert.Equal(t, 1, pool.SubmittedJobs())
 	assert.Equal(t, 1, pool.AssignedJobs())
+	assert.Len(t, pool.jobQueue, 0)
 
 	// Job 2, 3 will be assigned to workers (1, 2)
 	job2 := 0
@@ -138,7 +139,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 
 	time.Sleep(10 * time.Millisecond)
 	// Job 2, 3 is processing
-	// Job 4, 5 will be in queue, job 6 will be in Idle holding point
+	// Job 4 in Idle holding point, job 5, 6 in queue
 	// Job 7 is hanged
 	assert.Equal(t, 1, job2)
 	assert.Equal(t, 1, job3)
@@ -147,13 +148,15 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	assert.Equal(t, 0, job6)
 	assert.Equal(t, 0, job7)
 	assert.False(t, job7InQueue)
+	assert.Len(t, pool.jobQueue, 2)
 	assert.Equal(t, 7, pool.SubmittedJobs())
 	assert.Equal(t, 3, pool.AssignedJobs())
 
 	time.Sleep(50 * time.Millisecond)
 	// Job 2, 3 is finished
 	// Job 4, 5 is processing
-	// Job 6, 7 will be in queue
+	// Job 6 in Idle holding point
+	// Job 7 in queue
 	assert.Equal(t, 2, job2)
 	assert.Equal(t, 2, job3)
 	assert.Equal(t, 1, job4)
@@ -161,6 +164,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	assert.Equal(t, 0, job6)
 	assert.Equal(t, 0, job7)
 	assert.True(t, job7InQueue)
+	assert.Len(t, pool.jobQueue, 1)
 	assert.Equal(t, 7, pool.SubmittedJobs())
 	assert.Equal(t, 5, pool.AssignedJobs())
 
@@ -173,6 +177,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	assert.Equal(t, 2, job5)
 	assert.Equal(t, 1, job6)
 	assert.Equal(t, 1, job7)
+	assert.Len(t, pool.jobQueue, 0)
 	assert.Equal(t, 7, pool.SubmittedJobs())
 	assert.Equal(t, 7, pool.AssignedJobs())
 
@@ -184,6 +189,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	assert.Equal(t, 2, job5)
 	assert.Equal(t, 2, job6)
 	assert.Equal(t, 2, job7)
+	assert.Len(t, pool.jobQueue, 0)
 	assert.Equal(t, 7, pool.SubmittedJobs())
 	assert.Equal(t, 7, pool.AssignedJobs())
 }
