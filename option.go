@@ -8,52 +8,52 @@ type Mode int
 type LogFunc func(msgFormat string, args ...interface{})
 
 type Option struct {
-	mode          Mode
-	capacity      int
-	numberWorkers int
-	logFunc       LogFunc
+	Mode          Mode
+	Capacity      int
+	NumberWorkers int
+	LogFunc       LogFunc
 }
 
 type OptionFunc func(opt *Option)
 
 func WithMode(mode Mode) OptionFunc {
 	return func(opt *Option) {
-		opt.mode = mode
+		opt.Mode = mode
 	}
 }
 
 func WithNumberWorkers(numberWorkers int) OptionFunc {
 	return func(opt *Option) {
-		opt.numberWorkers = numberWorkers
+		opt.NumberWorkers = numberWorkers
 	}
 }
 
 func WithCapacity(capacity int) OptionFunc {
 	return func(opt *Option) {
-		opt.capacity = capacity
+		opt.Capacity = capacity
 	}
 }
 
 func WithLogFunc(logFunc LogFunc) OptionFunc {
 	return func(opt *Option) {
-		opt.logFunc = logFunc
+		opt.LogFunc = logFunc
 	}
 }
 
 func makeDefaultOption(option *Option) {
-	if option.logFunc == nil {
-		option.logFunc = func(msgFormat string, args ...interface{}) {
+	if option.LogFunc == nil {
+		option.LogFunc = func(msgFormat string, args ...interface{}) {
 			fmt.Printf(msgFormat, args...)
 		}
 	}
-	if option.mode != FixedSize && option.mode != FlexibleSize {
-		option.mode = FixedSize
-		option.logFunc("Invalid pool mode, fallback to FixedSize")
+	if option.Mode != FixedSize && option.Mode != FlexibleSize {
+		option.Mode = FixedSize
+		option.LogFunc("Invalid pool mode, fallback to FixedSize")
 	}
-	if option.numberWorkers <= 0 {
-		option.numberWorkers = defaultNumberWorkers
+	if option.NumberWorkers <= 0 {
+		option.NumberWorkers = defaultNumberWorkers
 	}
-	if option.capacity <= 0 {
-		option.capacity = option.numberWorkers * defaultCapacityRatio
+	if option.Capacity <= 0 {
+		option.Capacity = option.NumberWorkers * defaultCapacityRatio
 	}
 }

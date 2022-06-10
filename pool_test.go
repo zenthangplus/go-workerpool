@@ -9,12 +9,12 @@ import (
 func TestPool_GivenNumberWorkers_WhenNewFixedSize_ShouldInitFieldsCorrectly(t *testing.T) {
 	numWorkers := 3
 	pool := NewFixedSize(numWorkers)
-	assert.Equal(t, FixedSize, pool.option.mode)
-	assert.Equal(t, numWorkers, pool.option.numberWorkers)
-	assert.Equal(t, numWorkers*defaultCapacityRatio, pool.option.capacity)
+	assert.Equal(t, FixedSize, pool.option.Mode)
+	assert.Equal(t, numWorkers, pool.option.NumberWorkers)
+	assert.Equal(t, numWorkers*defaultCapacityRatio, pool.option.Capacity)
 	assert.Equal(t, numWorkers*defaultCapacityRatio, pool.Capacity())
-	assert.NotNil(t, pool.option.logFunc)
-	assert.Equal(t, pool.option.capacity, cap(pool.jobQueue))
+	assert.NotNil(t, pool.option.LogFunc)
+	assert.Equal(t, pool.option.Capacity, cap(pool.jobQueue))
 	assert.Len(t, pool.Workers(), 0)
 	assert.Equal(t, 0, pool.SubmittedJobs())
 	assert.Equal(t, 0, pool.AssignedJobs())
@@ -22,18 +22,18 @@ func TestPool_GivenNumberWorkers_WhenNewFixedSize_ShouldInitFieldsCorrectly(t *t
 
 func TestPool_GivenAnOption_WhenNew_ShouldInitFieldsCorrectly(t *testing.T) {
 	opt := Option{
-		mode:          FlexibleSize,
-		capacity:      1000,
-		numberWorkers: 4,
-		logFunc:       func(msgFormat string, args ...interface{}) {},
+		Mode:          FlexibleSize,
+		Capacity:      1000,
+		NumberWorkers: 4,
+		LogFunc:       func(msgFormat string, args ...interface{}) {},
 	}
 	pool := New(&opt)
-	assert.Equal(t, opt.mode, pool.option.mode)
-	assert.Equal(t, opt.numberWorkers, pool.option.numberWorkers)
-	assert.Equal(t, opt.capacity, pool.option.capacity)
-	assert.Equal(t, opt.capacity, pool.Capacity())
-	assert.NotNil(t, pool.option.logFunc)
-	assert.Equal(t, pool.option.capacity, cap(pool.jobQueue))
+	assert.Equal(t, opt.Mode, pool.option.Mode)
+	assert.Equal(t, opt.NumberWorkers, pool.option.NumberWorkers)
+	assert.Equal(t, opt.Capacity, pool.option.Capacity)
+	assert.Equal(t, opt.Capacity, pool.Capacity())
+	assert.NotNil(t, pool.option.LogFunc)
+	assert.Equal(t, pool.option.Capacity, cap(pool.jobQueue))
 	assert.Len(t, pool.Workers(), 0)
 	assert.Equal(t, 0, pool.SubmittedJobs())
 	assert.Equal(t, 0, pool.AssignedJobs())
@@ -41,18 +41,18 @@ func TestPool_GivenAnOption_WhenNew_ShouldInitFieldsCorrectly(t *testing.T) {
 
 func TestPool_GivenNegativeOption_WhenNew_ShouldInitWithFallbackValues(t *testing.T) {
 	opt := Option{
-		mode:          FlexibleSize,
-		capacity:      -100,
-		numberWorkers: -4,
-		logFunc:       func(msgFormat string, args ...interface{}) {},
+		Mode:          FlexibleSize,
+		Capacity:      -100,
+		NumberWorkers: -4,
+		LogFunc:       func(msgFormat string, args ...interface{}) {},
 	}
 	pool := New(&opt)
-	assert.Equal(t, opt.mode, pool.option.mode)
-	assert.Equal(t, defaultNumberWorkers, pool.option.numberWorkers)
-	assert.Equal(t, defaultNumberWorkers*defaultCapacityRatio, pool.option.capacity)
+	assert.Equal(t, opt.Mode, pool.option.Mode)
+	assert.Equal(t, defaultNumberWorkers, pool.option.NumberWorkers)
+	assert.Equal(t, defaultNumberWorkers*defaultCapacityRatio, pool.option.Capacity)
 	assert.Equal(t, defaultNumberWorkers*defaultCapacityRatio, pool.Capacity())
-	assert.NotNil(t, pool.option.logFunc)
-	assert.Equal(t, pool.option.capacity, cap(pool.jobQueue))
+	assert.NotNil(t, pool.option.LogFunc)
+	assert.Equal(t, pool.option.Capacity, cap(pool.jobQueue))
 	assert.Len(t, pool.Workers(), 0)
 	assert.Equal(t, 0, pool.SubmittedJobs())
 	assert.Equal(t, 0, pool.AssignedJobs())
@@ -61,11 +61,11 @@ func TestPool_GivenNegativeOption_WhenNew_ShouldInitWithFallbackValues(t *testin
 func startDummyPoolFixedSize(t *testing.T, numberWorkers int, capacity int) *Pool {
 	pool := NewFixedSize(numberWorkers, WithCapacity(capacity))
 	pool.Start()
-	assert.Equal(t, FixedSize, pool.option.mode)
-	assert.Equal(t, numberWorkers, pool.option.numberWorkers)
-	assert.Equal(t, capacity, pool.option.capacity)
+	assert.Equal(t, FixedSize, pool.option.Mode)
+	assert.Equal(t, numberWorkers, pool.option.NumberWorkers)
+	assert.Equal(t, capacity, pool.option.Capacity)
 	assert.Equal(t, capacity, pool.Capacity())
-	assert.NotNil(t, pool.option.logFunc)
+	assert.NotNil(t, pool.option.LogFunc)
 	assert.Len(t, pool.Workers(), numberWorkers)
 	return pool
 }
@@ -75,7 +75,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	job1 := 0
 	go pool.Submit(NewFuncJobWithId("1", func() {
 		job1 = 1
-		pool.option.logFunc("Job 1 is finished")
+		pool.option.LogFunc("Job 1 is finished")
 	}))
 	time.Sleep(20 * time.Millisecond)
 	assert.Equal(t, 1, job1)
@@ -88,14 +88,14 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	pool.Submit(NewFuncJobWithId("2", func() {
 		job2++
 		time.Sleep(50 * time.Millisecond)
-		pool.option.logFunc("Job 2 is finished")
+		pool.option.LogFunc("Job 2 is finished")
 		job2++
 	}))
 	job3 := 0
 	pool.Submit(NewFuncJobWithId("3", func() {
 		job3++
 		time.Sleep(50 * time.Millisecond)
-		pool.option.logFunc("Job 3 is finished")
+		pool.option.LogFunc("Job 3 is finished")
 		job3++
 	}))
 	// Job 4, 5 will be added to job queue
@@ -104,14 +104,14 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	pool.Submit(NewFuncJobWithId("4", func() {
 		job4++
 		time.Sleep(50 * time.Millisecond)
-		pool.option.logFunc("Job 4 is finished")
+		pool.option.LogFunc("Job 4 is finished")
 		job4++
 	}))
 	job5 := 0
 	pool.Submit(NewFuncJobWithId("5", func() {
 		job5++
 		time.Sleep(50 * time.Millisecond)
-		pool.option.logFunc("Job 5 is finished")
+		pool.option.LogFunc("Job 5 is finished")
 		job5++
 	}))
 	// Job 6 will be added to the queue even though capacity=2 due by Idle holding point (See Pool.Start function)
@@ -119,7 +119,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 	pool.Submit(NewFuncJobWithId("6", func() {
 		job6++
 		time.Sleep(50 * time.Millisecond)
-		pool.option.logFunc("Job 6 is finished")
+		pool.option.LogFunc("Job 6 is finished")
 		job6++
 	}))
 
@@ -130,12 +130,12 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitJob_ShouldRunCorrectly(t *testing.T)
 		pool.Submit(NewFuncJobWithId("7", func() {
 			job7++
 			time.Sleep(50 * time.Millisecond)
-			pool.option.logFunc("Job 7 is finished")
+			pool.option.LogFunc("Job 7 is finished")
 			job7++
 		}))
 		job7InQueue = true
 	}()
-	pool.option.logFunc("Submitted all jobs")
+	pool.option.LogFunc("Submitted all jobs")
 
 	time.Sleep(10 * time.Millisecond)
 	// Job 2, 3 is processing
@@ -199,7 +199,7 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitConfidentlyJob_ShouldRunCorrectly(t 
 	job1 := 0
 	assert.NoError(t, pool.SubmitConfidently(NewFuncJobWithId("1", func() {
 		job1 = 1
-		pool.option.logFunc("Job 1 is finished")
+		pool.option.LogFunc("Job 1 is finished")
 	})))
 	time.Sleep(10 * time.Millisecond)
 	assert.Equal(t, 1, job1)
@@ -210,18 +210,18 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitConfidentlyJob_ShouldRunCorrectly(t 
 	assert.NoError(t, pool.SubmitConfidently(NewFuncJobWithId("2", func() {
 		job2++
 		time.Sleep(200 * time.Millisecond)
-		pool.option.logFunc("Job 2 is finished")
+		pool.option.LogFunc("Job 2 is finished")
 		job2++
 	})))
 	job3 := 0
 	assert.NoError(t, pool.SubmitConfidently(NewFuncJobWithId("3", func() {
 		job3++
 		time.Sleep(200 * time.Millisecond)
-		pool.option.logFunc("Job 3 is finished")
+		pool.option.LogFunc("Job 3 is finished")
 		job3++
 	})))
 
-	pool.option.logFunc("Wait for workers receive job 2, 3")
+	pool.option.LogFunc("Wait for workers receive job 2, 3")
 	time.Sleep(10 * time.Millisecond)
 
 	// Job 5, 6 will be queued (job 4 will be in Idle holding point)
@@ -229,21 +229,21 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitConfidentlyJob_ShouldRunCorrectly(t 
 	assert.NoError(t, pool.SubmitConfidently(NewFuncJobWithId("4", func() {
 		job4++
 		time.Sleep(500 * time.Millisecond)
-		pool.option.logFunc("Job 4 is finished")
+		pool.option.LogFunc("Job 4 is finished")
 		job4++
 	})))
 	job5 := 0
 	assert.NoError(t, pool.SubmitConfidently(NewFuncJobWithId("5", func() {
 		job5++
 		time.Sleep(500 * time.Millisecond)
-		pool.option.logFunc("Job 5 is finished")
+		pool.option.LogFunc("Job 5 is finished")
 		job5++
 	})))
 	job6 := 0
 	assert.NoError(t, pool.SubmitConfidently(NewFuncJobWithId("6", func() {
 		job6++
 		time.Sleep(500 * time.Millisecond)
-		pool.option.logFunc("Job 6 is finished")
+		pool.option.LogFunc("Job 6 is finished")
 		job6++
 	})))
 
@@ -252,11 +252,11 @@ func TestPool_GivenAPoolFixedSize_WhenSubmitConfidentlyJob_ShouldRunCorrectly(t 
 	assert.ErrorIs(t, pool.SubmitConfidently(NewFuncJobWithId("7", func() {
 		job7++
 		time.Sleep(500 * time.Millisecond)
-		pool.option.logFunc("Job 7 is finished")
+		pool.option.LogFunc("Job 7 is finished")
 		job7++
 	})), ErrPoolFull)
 
-	pool.option.logFunc("Submitted all jobs")
+	pool.option.LogFunc("Submitted all jobs")
 	time.Sleep(100 * time.Millisecond)
 
 	assert.Equal(t, 1, job2)
