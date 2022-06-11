@@ -30,14 +30,23 @@ func main() {
 	// Start worker pool
 	pool.Start()
 
-	// This will block until slot available in Pool queue.
-	pool.Submit(workerpool.NewFuncJob(func() {
+	// pool.Submit will block until slot available in Pool queue. 
+	// Submit an identifiable job, ID will be generated randomly (using UUID)
+	pool.Submit(workerpool.NewIdentifiableJob(func() {
 		// Do a heavy job
 	}))
+	// Use NewCustomIdentifierJob if you don't want ID to be generated randomly
+	pool.Submit(workerpool.NewCustomIdentifierJob("custom-id", func() { 
+		// Do a heavy job
+	}))
+	// or Submit a simple function without identifier
+	pool.SubmitFunc(func() {// simpler way of: Submit(FuncJob(func() {})) 
+		// Do a heavy job
+	})
 
-	// or submit in confident mode
-	// This will return ErrPoolFull when Pool queue is full.
-	err := pool.SubmitConfidently(workerpool.NewFuncJob(func() {
+	// pool.SubmitConfidently will submit a job in confident mode, 
+	// this function will return ErrPoolFull when Pool queue is full.
+	err := pool.SubmitConfidently(workerpool.NewIdentifiableJob(func() {
 		// Do a heavy job
 	}))
 	if err == workerpool.ErrPoolFull {
@@ -71,7 +80,7 @@ func main() {
 		// When you want to customize capacity
 		workerpool.WithCapacity(6),
 		
-		// When you want to custom log fucntion
+		// When you want to custom log function
 		workerpool.WithLogFunc(func(msgFormat string, args ...interface{}) {
 			fmt.Printf(msgFormat+"\n", args...)
 		}),
@@ -79,16 +88,19 @@ func main() {
 
 	// Start worker pool
 	pool.Start()
-
-	// Init a functional job with ID is generated
-	job1 := workerpool.NewFuncJob(func() {})
+	
+	// Init a functional job with ID is generated randomly
+	job1 := workerpool.NewIdentifiableJob(func() {})
 
 	// init a functional job with predefined ID
-	job2 := workerpool.NewFuncJobWithId("test-an-id", func() {})
+	job2 := workerpool.NewCustomIdentifierJob("test-an-id", func() {})
 
 	// Submit job in normal mode, it will block until pool has available slot.
 	pool.Submit(job1)
-
+	
+	// or Submit a simple function
+	pool.SubmitFunc(func() {})
+	
 	// Submit in confident mode, it will return ErrPoolFull when pool is full. 
 	err := pool.SubmitConfidently(job2)
 	if err != nil {

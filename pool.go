@@ -49,7 +49,7 @@ func (p *Pool) Start() {
 }
 
 func (p *Pool) dispatch(job Job, worker *Worker) {
-	p.option.LogFunc("Worker %d got a job [%s]", worker.Id(), job.Id())
+	p.option.LogFunc("Worker %d got a job [%s]", worker.Id(), p.getJobId(job))
 	p.assignedJobs++
 	worker.Run(job)
 	p.option.LogFunc("Worker %d is ready for new job", worker.Id())
@@ -57,7 +57,7 @@ func (p *Pool) dispatch(job Job, worker *Worker) {
 }
 
 func (p *Pool) beforeSubmit(job Job) {
-	p.option.LogFunc("Job [%s] is submitted", job.Id())
+	p.option.LogFunc("Job [%s] is submitted", p.getJobId(job))
 	p.submittedJobs++
 }
 
@@ -66,7 +66,13 @@ func (p *Pool) beforeSubmit(job Job) {
 func (p *Pool) Submit(job Job) {
 	p.beforeSubmit(job)
 	p.jobQueue <- job
-	p.option.LogFunc("Job [%s] is queued", job.Id())
+	p.option.LogFunc("Job [%s] is queued", p.getJobId(job))
+}
+
+// SubmitFunc a func job.
+// Fast way to Submit(FuncJob(func() {}))
+func (p *Pool) SubmitFunc(f func()) {
+	p.Submit(FuncJob(f))
 }
 
 // SubmitConfidently submit a job in confidently mode.
@@ -75,10 +81,10 @@ func (p *Pool) SubmitConfidently(job Job) error {
 	p.beforeSubmit(job)
 	select {
 	case p.jobQueue <- job:
-		p.option.LogFunc("Job [%s] is queued", job.Id())
+		p.option.LogFunc("Job [%s] is queued", p.getJobId(job))
 		return nil
 	default:
-		p.option.LogFunc("Job [%s] is rejected due by pool full", job.Id())
+		p.option.LogFunc("Job [%s] is rejected due by pool full", p.getJobId(job))
 		return ErrPoolFull
 	}
 }
@@ -97,4 +103,11 @@ func (p Pool) SubmittedJobs() int {
 
 func (p Pool) AssignedJobs() int {
 	return p.assignedJobs
+}
+
+func (p Pool) getJobId(job Job) string {
+	if id := job.Id(); id != "" {
+		return id
+	}
+	return "undefined"
 }
