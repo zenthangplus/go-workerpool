@@ -2,13 +2,10 @@ module github.com/zenthangplus/go-workerpool
 
 go 1.14
 
+// Mistake happened in the version DO NOT USE
+retract v1.0.0
+
 require (
 	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.7.1
-)
-
-require (
-	github.com/davecgh/go-spew v1.1.0 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
