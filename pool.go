@@ -23,7 +23,6 @@ func NewFixedSize(numberWorkers int, optionFunc ...OptionFunc) *Pool {
 	opt := Option{
 		Mode:          FixedSize,
 		NumberWorkers: numberWorkers,
-		LogFunc:       defaultLogFunc,
 	}
 	for _, optFunc := range optionFunc {
 		optFunc(&opt)

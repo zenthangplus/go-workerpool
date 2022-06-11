@@ -1,9 +1,5 @@
 package workerpool
 
-import (
-	"fmt"
-)
-
 type Mode int
 type LogFunc func(msgFormat string, args ...interface{})
 
@@ -42,9 +38,7 @@ func WithLogFunc(logFunc LogFunc) OptionFunc {
 
 func makeDefaultOption(option *Option) {
 	if option.LogFunc == nil {
-		option.LogFunc = func(msgFormat string, args ...interface{}) {
-			fmt.Printf(msgFormat, args...)
-		}
+		option.LogFunc = defaultLogFunc
 	}
 	if option.Mode != FixedSize && option.Mode != FlexibleSize {
 		option.Mode = FixedSize
